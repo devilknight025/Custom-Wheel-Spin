@@ -1,1 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Wheel Spin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        .wheel-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            color: white;
+            text-align: center;
+        }
+
+        .wheel-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .code-section {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .code-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            background: white;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .wheel-section {
+            position: relative;
+            margin: 40px 0;
+        }
+
+        .wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 8px solid #333;
+            overflow: hidden;
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            transform-origin: 150px 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            line-height: 1.2;
+            border-right: 2px solid #333;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #ff6b6b;
+            z-index: 10;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            z-index: 15;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 4px solid white;
+            font-size: 1rem;
+        }
+
+        .result-section {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .result-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .result-date {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .share-section {
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            background: linear-gradient(45deg, #1da1f2, #0d8bd9);
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            background: rgba(255,0,0,0.2);
+            color: #ffcccb;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid rgba(255,0,0,0.3);
+        }
+
+        .success-message {
+            background: rgba(0,255,0,0.2);
+            color: #90ee90;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid rgba(0,255,0,0.3);
+        }
+
+        .countdown-timer {
+            font-size: 1.1rem;
+            color: #ffd700;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .wheel-container {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            .wheel-title {
+                font-size: 2rem;
+            }
+
+            .wheel {
+                width: 250px;
+                height: 250px;
+            }
+
+            .wheel-segment {
+                width: 125px;
+                height: 125px;
+                transform-origin: 125px 125px;
+                font-size: 0.7rem;
+                padding: 8px;
+            }
+
+            .wheel-center {
+                width: 70px;
+                height: 70px;
+                font-size: 0.9rem;
+            }
+
+            .code-input {
+                max-width: 250px;
+                font-size: 1rem;
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+
+            .result-title {
+                font-size: 1.3rem;
+            }
+
+            .result-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wheel {
+                width: 200px;
+                height: 200px;
+            }
+
+            .wheel-segment {
+                width: 100px;
+                height: 100px;
+                transform-origin: 100px 100px;
+                font-size: 0.6rem;
+                padding: 5px;
+            }
+
+            .wheel-center {
+                width: 60px;
+                height: 60px;
+                font-size: 0.8rem;
+            }
+
+            .wheel-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Celebration Animation */
+        .celebrate {
+            animation: celebrate 0.6s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="wheel-container">
+        <h1 class="wheel-title">🎯 Student Reward Wheel</h1>
+        
+        <!-- Code Entry Section -->
+        <div class="code-section">
+            <h3 style="margin-bottom: 15px;">Enter Your Student Code</h3>
+            <input type="text" id="studentCode" class="code-input" placeholder="Enter your unique code" maxlength="20">
+            <br>
+            <button id="checkCodeBtn" class="btn">Check Code</button>
+        </div>
+
+        <!-- Messages -->
+        <div id="messageArea"></div>
+
+        <!-- Wheel Section -->
+        <div id="wheelSection" class="wheel-section hidden">
+            <div class="wheel" id="wheel">
+                <div class="wheel-pointer"></div>
+                <div class="wheel-center">SPIN</div>
+                <!-- Wheel segments will be generated by JavaScript -->
+            </div>
+            <button id="spinBtn" class="btn" style="margin-top: 20px;">🎲 Spin the Wheel!</button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultSection" class="result-section hidden">
+            <div class="result-title">🎉 Congratulations!</div>
+            <div id="resultText" class="result-text"></div>
+            <div id="resultDate" class="result-date"></div>
+            
+            <div class="share-section">
+                <button id="shareTwitter" class="btn share-btn">Share on Twitter</button>
+                <button id="shareFacebook" class="btn share-btn">Share on Facebook</button>
+                <button id="shareWhatsApp" class="btn share-btn">Share on WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- Previous Record Section -->
+        <div id="previousRecord" class="result-section hidden">
+            <div class="result-title">📋 Your Previous Win</div>
+            <div id="previousText" class="result-text"></div>
+            <div id="previousDate" class="result-date"></div>
+            <div id="countdownTimer" class="countdown-timer"></div>
+            
+            <div class="share-section">
+                <button id="sharePreviousTwitter" class="btn share-btn">Share Previous Win</button>
+                <button id="sharePreviousFacebook" class="btn share-btn">Share Previous Win</button>
+                <button id="sharePreviousWhatsApp" class="btn share-btn">Share Previous Win</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - You can easily modify these
+        const VALID_CODES = {
+            'STUDENT001': 'John Doe',
+            'STUDENT002': 'Jane Smith', 
+            'STUDENT003': 'Mike Johnson',
+            'STUDENT004': 'Sarah Wilson',
+            'STUDENT005': 'David Brown',
+            // Add more student codes here as needed
+            // Format: 'CODE': 'Student Name'
+        };
+
+        const WHEEL_PRIZES = [
+            '🎁 Free Homework Pass',
+            '📚 Extra Credit Points',
+            '🍕 Pizza Party Invite',
+            '⭐ Gold Star Certificate',
+            '🎮 Game Time 15 mins',
+            '📝 Skip One Quiz',
+            '🏆 Achievement Badge',
+            '🎨 Art Supplies Kit'
+        ];
+
+        const PRIZE_COLORS = [
+            '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4',
+            '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'
+        ];
+
+        // Global variables
+        let currentStudent = null;
+        let isSpinning = false;
+
+        // Initialize the wheel
+        function initializeWheel() {
+            const wheel = document.getElementById('wheel');
+            const segmentAngle = 360 / WHEEL_PRIZES.length;
+
+            WHEEL_PRIZES.forEach((prize, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.style.background = PRIZE_COLORS[index % PRIZE_COLORS.length];
+                
+                // Create a proper pie slice using clip-path
+                const startAngle = index * segmentAngle;
+                const endAngle = (index + 1) * segmentAngle;
+                
+                // Convert angles to coordinates for clip-path
+                const centerX = 50;
+                const centerY = 50;
+                const radius = 50;
+                
+                const startX = centerX + radius * Math.cos((startAngle - 90) * Math.PI / 180);
+                const startY = centerY + radius * Math.sin((startAngle - 90) * Math.PI / 180);
+                const endX = centerX + radius * Math.cos((endAngle - 90) * Math.PI / 180);
+                const endY = centerY + radius * Math.sin((endAngle - 90) * Math.PI / 180);
+                
+                const largeArcFlag = segmentAngle > 180 ? 1 : 0;
+                
+                segment.style.clipPath = `polygon(50% 50%, ${startX}% ${startY}%, ${endX}% ${endY}%)`;
+                segment.style.width = '100%';
+                segment.style.height = '100%';
+                segment.style.transformOrigin = 'center';
+                
+                // Position text in the middle of the segment
+                const textAngle = startAngle + segmentAngle / 2;
+                const textRadius = 35; // Distance from center
+                const textX = 50 + textRadius * Math.cos((textAngle - 90) * Math.PI / 180);
+                const textY = 50 + textRadius * Math.sin((textAngle - 90) * Math.PI / 180);
+                
+                segment.innerHTML = `<span style="position: absolute; left: ${textX}%; top: ${textY}%; transform: translate(-50%, -50%) rotate(${textAngle}deg); white-space: nowrap; font-size: 0.8rem;">${prize}</span>`;
+                
+                segment.textContent = prize;
+                wheel.appendChild(segment);
+            });
+        }
+
+        // Check if code is valid and handle timing
+        function checkStudentCode() {
+            const codeInput = document.getElementById('studentCode');
+            const code = codeInput.value.trim().toUpperCase();
+            const messageArea = document.getElementById('messageArea');
+
+            if (!code) {
+                showMessage('Please enter your student code.', 'error');
+                return;
+            }
+
+            if (!VALID_CODES[code]) {
+                showMessage('Invalid student code. Please check your code and try again.', 'error');
+                return;
+            }
+
+            currentStudent = {
+                code: code,
+                name: VALID_CODES[code]
+            };
+
+            const lastSpinData = getLastSpinData(code);
+            
+            if (lastSpinData) {
+                const daysSinceLastSpin = getDaysSince(lastSpinData.date);
+                
+                if (daysSinceLastSpin < 7) {
+                    showPreviousRecord(lastSpinData, 7 - daysSinceLastSpin);
+                    return;
+                }
+            }
+
+            showMessage(`Welcome ${currentStudent.name}! You can spin the wheel now.`, 'success');
+            showWheelSection();
+        }
+
+        // Show previous record with countdown
+        function showPreviousRecord(data, daysRemaining) {
+            document.getElementById('wheelSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            
+            const previousRecord = document.getElementById('previousRecord');
+            const previousText = document.getElementById('previousText');
+            const previousDate = document.getElementById('previousDate');
+            const countdownTimer = document.getElementById('countdownTimer');
+
+            previousText.textContent = `You won: ${data.prize}`;
+            previousDate.textContent = `Won on: ${new Date(data.date).toLocaleDateString()}`;
+            countdownTimer.textContent = `Next spin available in: ${daysRemaining} day(s)`;
+
+            previousRecord.classList.remove('hidden');
+
+            // Setup share buttons for previous win
+            setupShareButtons(data.prize, true);
+
+            // Update countdown every hour
+            updateCountdown(data.date);
+        }
+
+        // Show wheel section
+        function showWheelSection() {
+            document.getElementById('previousRecord').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('wheelSection').classList.remove('hidden');
+        }
+
+        // Spin the wheel
+        function spinWheel() {
+            if (isSpinning || !currentStudent) return;
+
+            isSpinning = true;
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            spinBtn.textContent = 'Spinning...';
+
+            const wheel = document.getElementById('wheel');
+            const segmentAngle = 360 / WHEEL_PRIZES.length;
+            
+            // Generate random spin (multiple rotations + random position)
+            const randomRotation = Math.random() * 360;
+            const extraSpins = 1440; // 4 full rotations
+            const totalRotation = extraSpins + randomRotation;
+
+            // Calculate which prize was selected
+            const normalizedRotation = (360 - (randomRotation % 360)) % 360;
+            const selectedIndex = Math.floor(normalizedRotation / segmentAngle);
+            const selectedPrize = WHEEL_PRIZES[selectedIndex];
+
+            // Apply spin animation using transform
+            wheel.style.transition = 'transform 3s cubic-bezier(0.23, 1, 0.32, 1)';
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            // Show result after animation
+            setTimeout(() => {
+                showResult(selectedPrize);
+                saveSpinData(currentStudent.code, selectedPrize);
+                
+                // Keep wheel at final position
+                wheel.style.transform = `rotate(${randomRotation}deg)`;
+                
+                isSpinning = false;
+                spinBtn.disabled = false;
+                spinBtn.textContent = '🎲 Spin the Wheel!';
+            }, 3000);
+        }
+
+        // Show result
+        function showResult(prize) {
+            const resultSection = document.getElementById('resultSection');
+            const resultText = document.getElementById('resultText');
+            const resultDate = document.getElementById('resultDate');
+
+            resultText.textContent = `You won: ${prize}`;
+            resultDate.textContent = `Won on: ${new Date().toLocaleDateString()}`;
+
+            document.getElementById('wheelSection').classList.add('hidden');
+            resultSection.classList.remove('hidden');
+            resultSection.classList.add('celebrate');
+
+            // Setup share buttons
+            setupShareButtons(prize, false);
+
+            setTimeout(() => {
+                resultSection.classList.remove('celebrate');
+            }, 600);
+        }
+
+        // Setup share functionality
+        function setupShareButtons(prize, isPrevious = false) {
+            const message = `🎉 I just won "${prize}" on the Student Reward Wheel! 🎯`;
+            const url = window.location.href;
+
+            const twitterBtn = document.getElementById(isPrevious ? 'sharePreviousTwitter' : 'shareTwitter');
+            const facebookBtn = document.getElementById(isPrevious ? 'sharePreviousFacebook' : 'shareFacebook');
+            const whatsappBtn = document.getElementById(isPrevious ? 'sharePreviousWhatsApp' : 'shareWhatsApp');
+
+            twitterBtn.onclick = () => {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`, '_blank');
+            };
+
+            facebookBtn.onclick = () => {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`, '_blank');
+            };
+
+            whatsappBtn.onclick = () => {
+                window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + url)}`, '_blank');
+            };
+        }
+
+        // Save spin data to localStorage
+        function saveSpinData(code, prize) {
+            const data = {
+                code: code,
+                prize: prize,
+                date: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+            localStorage.setItem(`wheelSpin_${code}`, JSON.stringify(data));
+        }
+
+        // Get last spin data
+        function getLastSpinData(code) {
+            const data = localStorage.getItem(`wheelSpin_${code}`);
+            return data ? JSON.parse(data) : null;
+        }
+
+        // Calculate days since last spin
+        function getDaysSince(dateString) {
+            const lastDate = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - lastDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        // Update countdown timer
+        function updateCountdown(lastSpinDate) {
+            const updateTimer = () => {
+                const daysSince = getDaysSince(lastSpinDate);
+                const daysRemaining = 7 - daysSince;
+                
+                if (daysRemaining <= 0) {
+                    document.getElementById('countdownTimer').textContent = 'You can spin again now!';
+                    return;
+                }
+
+                const lastDate = new Date(lastSpinDate);
+                const nextSpinDate = new Date(lastDate.getTime() + (7 * 24 * 60 * 60 * 1000));
+                const now = new Date();
+                const timeRemaining = nextSpinDate - now;
+
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+
+                document.getElementById('countdownTimer').textContent = 
+                    `Next spin available in: ${days}d ${hours}h ${minutes}m`;
+            };
+
+            updateTimer();
+            setInterval(updateTimer, 60000); // Update every minute
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="${type}-message">${message}</div>`;
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWheel();
+
+            document.getElementById('checkCodeBtn').addEventListener('click', checkStudentCode);
+            document.getElementById('spinBtn').addEventListener('click', spinWheel);
+            
+            // Allow Enter key to check code
+            document.getElementById('studentCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkStudentCode();
+                }
+            });
+        });
+
+        // Reset function (for testing purposes)
+        function resetStudent(code) {
+            if (confirm('Are you sure you want to reset this student\'s data? This action cannot be undone.')) {
+                localStorage.removeItem(`wheelSpin_${code}`);
+                location.reload();
+            }
+        }
+
+        // Admin function to clear all data (for testing)
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear ALL student data? This action cannot be undone.')) {
+                Object.keys(VALID_CODES).forEach(code => {
+                    localStorage.removeItem(`wheelSpin_${code}`);
+                });
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
